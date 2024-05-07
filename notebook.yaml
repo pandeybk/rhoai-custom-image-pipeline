@@ -1,0 +1,162 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  annotations:
+    notebooks.opendatahub.io/inject-oauth: 'true'
+    opendatahub.io/image-display-name: cuda-112-v6-sudo-access
+    notebooks.opendatahub.io/oauth-logout-url: >-
+      https://rhods-dashboard-redhat-ods-applications.apps.cloud9c.xtoph156.dfw.ocp.run/projects/demoproject?notebookLogout=sudo-access-v7
+    opendatahub.io/accelerator-name: ''
+    openshift.io/description: ''
+    openshift.io/display-name: sudo-access-v7
+    notebooks.opendatahub.io/last-image-selection: 'custom-cuda-112-v6-sudo-access:cuda-112-v6'
+    notebooks.opendatahub.io/last-size-selection: Medium
+    opendatahub.io/username: cloud-user
+  name: sudo-access-v7
+  generation: 5
+  namespace: demoproject
+  labels:
+    app: sudo-access-v7
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/odh-managed: 'true'
+    opendatahub.io/user: cloud-2duser
+spec:
+  template:
+    spec:
+      affinity: {}
+      containers:
+        - resources:
+            limits:
+              cpu: '6'
+              memory: 24Gi
+            requests:
+              cpu: '3'
+              memory: 24Gi
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /notebook/demoproject/sudo-access-v7/api
+              port: notebook-port
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: sudo-access-v7
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /notebook/demoproject/sudo-access-v7/api
+              port: notebook-port
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          env:
+            - name: NOTEBOOK_ARGS
+              value: |-
+                --ServerApp.port=8888
+                                  --ServerApp.token=''
+                                  --ServerApp.password=''
+                                  --ServerApp.base_url=/notebook/demoproject/sudo-access-v7
+                                  --ServerApp.quit_button=False
+                                  --ServerApp.tornado_settings={"user":"cloud-2duser","hub_host":"https://rhods-dashboard-redhat-ods-applications.apps.cloud9c.xtoph156.dfw.ocp.run","hub_prefix":"/projects/demoproject"}
+            - name: JUPYTER_IMAGE
+              value: >-
+                image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/custom-cuda-112-v6-sudo-access:cuda-112-v6
+          securityContext:
+            privileged: true
+          ports:
+            - containerPort: 8888
+              name: notebook-port
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /opt/app-root/src
+              name: sudo-access-v7
+            - mountPath: /dev/shm
+              name: shm
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/custom-cuda-112-v6-sudo-access:cuda-112-v6
+          workingDir: /opt/app-root/src
+        - resources:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /oauth/healthz
+              port: oauth-proxy
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: oauth-proxy
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /oauth/healthz
+              port: oauth-proxy
+              scheme: HTTPS
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - containerPort: 8443
+              name: oauth-proxy
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /etc/oauth/config
+              name: oauth-config
+            - mountPath: /etc/tls/private
+              name: tls-certificates
+          image: >-
+            registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4bef31eb993feb6f1096b51b4876c65a6fb1f4401fee97fa4f4542b6b7c9bc46
+          args:
+            - '--provider=openshift'
+            - '--https-address=:8443'
+            - '--http-address='
+            - '--openshift-service-account=sudo-access-v7'
+            - '--cookie-secret-file=/etc/oauth/config/cookie_secret'
+            - '--cookie-expire=24h0m0s'
+            - '--tls-cert=/etc/tls/private/tls.crt'
+            - '--tls-key=/etc/tls/private/tls.key'
+            - '--upstream=http://localhost:8888'
+            - '--upstream-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+            - '--email-domain=*'
+            - '--skip-provider-button'
+            - >-
+              --openshift-sar={"verb":"get","resource":"notebooks","resourceAPIGroup":"kubeflow.org","resourceName":"sudo-access-v7","namespace":"$(NAMESPACE)"}
+            - >-
+              --logout-url=https://rhods-dashboard-redhat-ods-applications.apps.cloud9c.xtoph156.dfw.ocp.run/projects/demoproject?notebookLogout=sudo-access-v7
+      enableServiceLinks: false
+      securityContext: {}
+      serviceAccountName: sudo-access-v7
+      volumes:
+        - name: sudo-access-v7
+          persistentVolumeClaim:
+            claimName: sudo-access-v7
+        - emptyDir:
+            medium: Memory
+          name: shm
+        - name: oauth-config
+          secret:
+            defaultMode: 420
+            secretName: sudo-access-v7-oauth-config
+        - name: tls-certificates
+          secret:
+            defaultMode: 420
+            secretName: sudo-access-v7-tls

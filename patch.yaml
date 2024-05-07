@@ -1,0 +1,12 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  name: sudo-workbench-test-008
+  namespace: demoproject
+spec:
+  template:
+    spec:
+      containers:
+      - name: sudo-workbench-test-008
+        securityContext:
+          privileged: true
