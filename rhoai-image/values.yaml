@@ -1,0 +1,2 @@
+name: custom-cli-imagestream
+notebook_image_url: quay.io/bpandey/rhoai-workbench:cuda-112-v2
