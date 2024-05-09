@@ -7,10 +7,13 @@ metadata:
     opendatahub.io/notebook-image-name: {{ .Values.name }}
     opendatahub.io/notebook-image-url: {{ .Values.notebook_image_url }}
     opendatahub.io/recommended-accelerators: '[]'
+    meta.helm.sh/release-name: helm-release
+    meta.helm.sh/release-namespace: redhat-ods-applications
   labels:
     app.kubernetes.io/created-by: byon
     opendatahub.io/dashboard: "true"
     opendatahub.io/notebook-image: "true"
+    app.kubernetes.io/managed-by: Helm
   name: {{ .Values.name }}
   namespace: redhat-ods-applications
 spec:
