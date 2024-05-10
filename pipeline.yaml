@@ -5,7 +5,7 @@ metadata:
   namespace: demoproject
 spec:
   params:
-    - default: 'python:3'
+    - default: 'quay.io/bpandey/rhoai-workbench:cuda-112-v2'
       name: BASE_IMAGE
       type: string
     - default: 'https://github.com/pandeybk/rhoai-custom-image-pipeline.git'
