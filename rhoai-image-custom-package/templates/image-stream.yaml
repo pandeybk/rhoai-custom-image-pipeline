@@ -9,8 +9,6 @@ metadata:
     opendatahub.io/recommended-accelerators: '[]'
     meta.helm.sh/release-name: helm-release
     meta.helm.sh/release-namespace: redhat-ods-applications
-    helm.sh/hook: pre-install
-    helm.sh/hook-weight: "10"
   labels:
     app.kubernetes.io/created-by: byon
     opendatahub.io/dashboard: "true"
