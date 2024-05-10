@@ -1,0 +1,6 @@
+base_image: quay.io/bpandey/rhoai-workbench:cuda-112-v2
+dockerSteps:
+  - RUN pip install faker
+
+
+#  oc start-build build-using-helm   -n redhat-ods-applications
