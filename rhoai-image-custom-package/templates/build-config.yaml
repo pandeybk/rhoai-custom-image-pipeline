@@ -8,8 +8,9 @@ spec:
     type: Dockerfile
     dockerfile: |-
       FROM demo
-      {{- range .Values.dockerSteps }}
-      {{ . | indent 4 }}
+      {{- $dockerSteps := splitList ";" .Values.dockerSteps }}
+      {{- range $step := $dockerSteps }}
+      {{ $step }}
       {{- end }}
   strategy:
     type: Docker
