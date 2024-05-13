@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: new-pipeline
+  name: custom-image-builder
   namespace: demoproject
 spec:
   params:
@@ -14,11 +14,9 @@ spec:
     - default: main
       name: GIT_REVISION
       type: string
-    - default:
-        - RUN pip install faker
-        - RUN pip install calc
+    - default: RUN pip install faker; RUN pip install calc
       name: DOCKER_STEPS
-      type: array
+      type: string
   tasks:
     - name: fetch-repository
       params:
@@ -47,8 +45,7 @@ spec:
         - name: release_namespace
           value: redhat-ods-applications
         - name: overwrite_values
-          value: >-
-            base_image=$(params.BASE_IMAGE)
+          value: 'base_image=$(params.BASE_IMAGE),dockerSteps=$(params.DOCKER_STEPS)'
         - name: values_file
           value: values.yaml
         - name: helm_image
